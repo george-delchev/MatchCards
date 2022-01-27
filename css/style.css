@@ -82,6 +82,29 @@ label, span{
 .typeOfCards, .numberOfCards {
   padding-top: 1%;
 }
+label.typeColor{
+  background: rgb(226, 107, 216)
+}
+label.typeCard{
+  background: url('../images/images/clubs.jpg')
+}
+.cardType + label + .cardHolder label:first-child {
+  box-shadow: 0px 2px 2px 2px black;
+  transform: rotateY(180deg);
+}
+.cardType:checked + label + .cardHolder label:first-child {
+  box-shadow: 0px 5px 5px 5px black;
+  transform: none;
+}
+
+.cardType + label + .cardHolder label + label.card {
+  box-shadow: 0px 2px 2px 2px black;
+}
+.cardType:checked + label + .cardHolder label + label.card {
+  box-shadow: 0px 5px 5px 5px black;
+  transform: rotateY(-180deg);
+}
+
 .numberOfCards a{
   width: 54px;
   height: 54px;
@@ -102,6 +125,7 @@ label, span{
   box-shadow: 0px 2px 2px 2px black;
 }
 .typeOfCards > div{
+  width: 20%;
   margin: 2%;
 }
 .cardType, label{
@@ -111,41 +135,49 @@ label, span{
 .cardsArea{
   flex-flow: row wrap;
 }
-.card{
-  position: relative;
+.cardHolder, .card{
   display: flex;
   height: 200px;
   width: 150px;
   margin: 2.5%;
+}
+.cardHolder{
+  position: relative;  
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+.card{
+  position: absolute;
   border: 2px solid white;
   border-radius: 5%;
   box-shadow: 0px 5px 5px 5px black;
-  transition: background, transform;
-  transition-duration: 0s, 1s;
-  transition-delay: 0.5s, 0s;
-  }
-.back{
-  background: linear-gradient(200deg, rgb(51, 85, 235), rgb(240, 242, 247));
+  backface-visibility: hidden;
+  transition: transform 0.5s;
+}
+
+.card-back{
+  background: url('../images/images/cardBack.png');
+  background-size: cover;
+}
+.card-rotate-opposite{
+  transform: rotateY(-180deg);
+}
+.card-rotate{
   transform: rotateY(180deg);
 }
-label.typeColor{
-background: rgb(226, 107, 216)
-}
-label.typeCard{
-background: url('../images/images/clubs.jpg')
-}
-.cardType +label+ label.card {
-  box-shadow: none;
-  
-}
-.cardType:checked + label+ label.card {
-  box-shadow: 0px 5px 5px 5px black;
-}
-
 
 @media screen and (max-width: 600px){
-  .card{
-    height: 200px;
-    width: 150;
+  nav{
+    left: 0;
+    width: 100%;
+    height: 350px;
+    transform: translateY(-300px);
+  }
+  .cardHolder, .card{
+    height: 100px;
+    width: 75px;
+  }
+  .gameStats{
+    padding-top: 12%;
   }
 }

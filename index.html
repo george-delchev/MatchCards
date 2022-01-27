@@ -7,7 +7,7 @@
 		<meta name="keywords" content="one, two, three">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<title>Blank Template</title>
+		<title>Match Two</title>
 
 		<!-- external CSS link -->
 		<link rel="stylesheet" href="css/reset.css">
@@ -22,12 +22,18 @@
 					<div>
 						<input type="radio" id="cards" name="cardType" class="cardType" value="cards">
 						<label for="cards">Cards</label>
-						<label for="cards" class="card typeCard"></label>
+						<div class="cardHolder">
+							<label for="cards" class="card typeCard"></label>
+							<label for="cards" class="card card-back"></label>
+						</div>
 					</div>
 					<div>
 						<input type="radio" id="color" name="cardType" class="cardType" value="color" checked>
 						<label for="color">Color</label>
-						<label for="color" class="card typeColor"></label>
+						<div class="cardHolder">
+							<label for="color" class="card typeColor"></label>
+							<label for="color" class="card card-back"></label>
+						</div>
 					</div>
 				</section>
 
@@ -38,7 +44,6 @@
 					<a href="#" class="getCardButton" id="10">10</a>
 					<a href="#" class="getCardButton" id="12">12</a>
 				</section>
-				<!-- <a id="navToggle"></a> -->
 			</nav>
 		</head>
 		<main>

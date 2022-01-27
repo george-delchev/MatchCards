@@ -38,8 +38,8 @@ function addCardsToArea() {
             cardsWithAttr = document.querySelectorAll(`.card[card='${cardAttribute}']`);
         } while (cardsWithAttr.length > 0)
 
-        cardArray.push(createCard(cardAttribute));
-        cardArray.push(createCard(cardAttribute));
+        cardArray.push(createCard(cardAttribute, 1));
+        cardArray.push(createCard(cardAttribute, 2));
     }
 
     cardArray = shuffleCards(cardArray);
@@ -66,27 +66,45 @@ function shuffleCards(cardArray) {
     return cardArray;
 }
 
-function createCard(cardAttribute) {
-    const newCard = document.createElement('div');
-    newCard.classList.add('card');
-    newCard.classList.add('back');
-    newCard.setAttribute("card", cardAttribute);
-    newCard.setAttribute("tabindex", 0);
-    newCard.addEventListener('click', checkForMatch);
-    return newCard;
+function createCard(cardAttribute, pair) {
+    const newCardHolder = document.createElement('div');
+    newCardHolder.classList.add('cardHolder');
+
+    const newCardBack = document.createElement('div');
+    newCardBack.classList.add('card');
+    newCardBack.classList.add('card-back');
+    newCardBack.classList.add('incorrect');
+    newCardBack.setAttribute("card", cardAttribute);
+    newCardBack.setAttribute("pair", cardAttribute+pair);
+    newCardBack.setAttribute("tabindex", 0);
+    newCardBack.addEventListener('click', checkForMatch);
+    newCardHolder.appendChild(newCardBack);
+
+    const newCardFront = document.createElement('div');
+    newCardFront.classList.add('card');
+    newCardFront.classList.add('card-front');
+    newCardFront.classList.add('card-rotate-opposite');
+    newCardFront.style.background = setCardFrontSide(cardAttribute);
+    newCardFront.setAttribute("card", cardAttribute);
+    newCardFront.setAttribute("pair", cardAttribute+pair);
+    newCardFront.setAttribute("tabindex", 0);
+    newCardHolder.appendChild(newCardFront);
+
+    return newCardHolder;
 }
 let matchOne;
 let matchTwo;
 
 function checkForMatch(event) {
+    const cardElement = event.target;
 
-    let cardElement = event.target;
-
-    let cardAttribute = cardElement.getAttribute("card");
-    cardElement.style.background = setCardFrontSide(cardAttribute);
-
-    cardElement.classList.toggle('back');
+    const cardAttribute = cardElement.getAttribute("pair");
+    const cardFront = document.querySelector(`.card-front[pair='${cardAttribute}']`);
+    cardFront.classList.toggle('card-rotate-opposite');
+    cardElement.classList.toggle('card-rotate');
     cardElement.removeEventListener('click', checkForMatch);
+    console.log(matchOne);
+    console.log(matchTwo);
 
     if (matchOne === undefined) {
         matchOne = cardElement;
@@ -96,6 +114,8 @@ function checkForMatch(event) {
         numberOfTriesSpan.innerText = numberOfTries;
         matchTwo = cardElement;
         if (matchOne.getAttribute("card") === matchTwo.getAttribute("card")) {
+            matchOne.classList.remove('incorrect');
+            matchTwo.classList.remove('incorrect');
             resetMatches();
         } else {
             disableEnableEventListeners();
@@ -109,7 +129,7 @@ function checkForMatch(event) {
     checkForWinner();
 }
 function disableEnableEventListeners() {
-    var allCards = document.querySelectorAll('.card.back');
+    var allCards = document.querySelectorAll('.card.card-back');
     allCards.forEach(element => {
         element.removeEventListener('click', checkForMatch);
     });
@@ -123,7 +143,7 @@ function checkForWinner() {
     let numberOfBacks = 0;
     var allCards = document.querySelectorAll('.card');
     allCards.forEach(element => {
-        if (element.classList.contains('back')) {
+        if (element.classList.contains('incorrect')) {
             numberOfBacks++;
         }
     });
@@ -132,10 +152,12 @@ function checkForWinner() {
     }
 }
 
-function returnToNormal(element) {
-    element.style.background = null;
-    element.classList.toggle('back');
-    element.addEventListener('click', checkForMatch);
+function returnToNormal(cardElement) {
+    const cardAttribute = cardElement.getAttribute("pair");
+    const cardFront = document.querySelector(`.card-front[pair='${cardAttribute}']`);
+    cardFront.classList.toggle('card-rotate-opposite');
+    cardElement.classList.toggle('card-rotate');
+    cardElement.addEventListener('click', checkForMatch);
 }
 function resetMatches() {
     matchOne = undefined;
@@ -181,24 +203,3 @@ function getRandomColor() {
 function getRandomNumber(number) {
     return Math.floor(Math.random() * number);
 }
-
-// var randomButton = document.getElementById('random');
-// randomButton.addEventListener('click', printRandomNumbers);
-// function printRandomNumbers() {
-//     const distribution = [];
-//     let sumOfALL = 0;
-//     for (let index = 1; index <= 52; index++) {
-//         distribution.push(0);
-//     };
-//     console.log(distribution);
-//     for (let index = 0; index < 10000; index++) {
-//         let randomCard = getRandomCard();
-//         distribution[randomCard - 1]++;
-//     };
-//     console.log(distribution);
-//     distribution.forEach(element => {
-//         console.log(element);
-//         sumOfALL += element;
-//     });
-//     console.log(sumOfALL);
-// }
