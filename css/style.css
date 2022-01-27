@@ -1,0 +1,151 @@
+/* Box Model Hack */
+* {
+  box-sizing: border-box;
+}
+
+/* Clear fix hack */
+.clearfix:after {
+     content: ".";
+     display: block;
+     clear: both;
+     visibility: hidden;
+     line-height: 0;
+     height: 0;
+}
+
+.clear {
+	clear: both;
+}
+
+/******************************************
+/* BASE STYLES
+/*******************************************/
+
+body {
+  background-image: url('../images/backgrounds/pokerTable7.jpg');
+  background-size: contain;
+}
+
+main{
+width: 100%;
+min-height: 800px;
+padding: 5%;
+padding-top: 0;
+}
+
+section{
+  padding: 5% 5% 0 5%;
+}
+/******************************************
+/* LAYOUT
+/*******************************************/
+header {
+
+}
+
+footer {
+
+}
+nav{
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  height: 500px;
+  margin: 0 auto;
+  background: url('../images/backgrounds/pokertable.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding-bottom: 2%;
+  border: 10px solid rgb(75, 73, 73);
+  border-top: none;
+  border-radius: 0 0 50% 50%;
+  transition: object-position 1s, transform 1s;
+  transform: translateY(-450px);
+  z-index: 1;
+}
+nav:hover{
+  transform: none;
+}
+label, span{
+  color: whitesmoke;
+  font-size: 1.5rem;
+}
+/******************************************
+/* ADDITIONAL STYLES
+/*******************************************/
+
+.typeOfCards, .numberOfCards,.gameStats, .cardsArea {
+  position: relative;
+  display: flex;
+  justify-content:center;
+}
+.typeOfCards, .numberOfCards {
+  padding-top: 1%;
+}
+.numberOfCards a{
+  width: 54px;
+  height: 54px;
+  position: relative;
+  color:whitesmoke;
+  background: black;
+  padding-top: 10px;
+  margin: 5%;
+  border: 2px solid whitesmoke;
+  border-radius: 50%;
+  font-size: 2rem;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0px 5px 5px 5px black;
+}
+.numberOfCards a:active{
+  top:4px;
+  box-shadow: 0px 2px 2px 2px black;
+}
+.typeOfCards > div{
+  margin: 2%;
+}
+.cardType, label{
+  display: inline-block;
+  margin: 10%;
+}
+.cardsArea{
+  flex-flow: row wrap;
+}
+.card{
+  position: relative;
+  display: flex;
+  height: 200px;
+  width: 150px;
+  margin: 2.5%;
+  border: 2px solid white;
+  border-radius: 5%;
+  box-shadow: 0px 5px 5px 5px black;
+  transition: background, transform;
+  transition-duration: 0s, 1s;
+  transition-delay: 0.5s, 0s;
+  }
+.back{
+  background: linear-gradient(200deg, rgb(51, 85, 235), rgb(240, 242, 247));
+  transform: rotateY(180deg);
+}
+label.typeColor{
+background: rgb(226, 107, 216)
+}
+label.typeCard{
+background: url('../images/images/clubs.jpg')
+}
+.cardType +label+ label.card {
+  box-shadow: none;
+  
+}
+.cardType:checked + label+ label.card {
+  box-shadow: 0px 5px 5px 5px black;
+}
+
+
+@media screen and (max-width: 600px){
+  .card{
+    height: 200px;
+    width: 150;
+  }
+}

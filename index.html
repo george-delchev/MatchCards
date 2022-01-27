@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="Your description goes here">
+		<meta name="keywords" content="one, two, three">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Blank Template</title>
+
+		<!-- external CSS link -->
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+
+	<body>
+
+		<head>
+			<nav>
+				<section class="typeOfCards">
+					<div>
+						<input type="radio" id="cards" name="cardType" class="cardType" value="cards">
+						<label for="cards">Cards</label>
+						<label for="cards" class="card typeCard"></label>
+					</div>
+					<div>
+						<input type="radio" id="color" name="cardType" class="cardType" value="color" checked>
+						<label for="color">Color</label>
+						<label for="color" class="card typeColor"></label>
+					</div>
+				</section>
+
+				<section class="numberOfCards">
+					<!-- <a href="#" id="random">Random</a> -->
+					<a href="#" class="getCardButton" id="6">6</a>
+					<a href="#" class="getCardButton" id="8">8</a>
+					<a href="#" class="getCardButton" id="10">10</a>
+					<a href="#" class="getCardButton" id="12">12</a>
+				</section>
+				<!-- <a id="navToggle"></a> -->
+			</nav>
+		</head>
+		<main>
+
+
+			<section class="gameStats">
+				<span>Number of tries: <span id="numberOfTries">0</span></span>
+			</section>
+			<section class="cardsArea" id="cardsArea">
+
+			</section>
+		</main>
+
+		<a href="https://www.freepik.com/vectors/cards">Cards vector created by brgfx - www.freepik.com</a>
+		<script type="text/javascript" src="js/main.js"></script>
+	</body>
+
+</html>
