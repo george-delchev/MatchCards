@@ -2,26 +2,32 @@ let numberOfTries = 0;
 let numberOfCards = 8;
 
 class CardPair {
-    constructor() {
-        this.cardOne = new Card();
-        this.cardTwo = new Card();
+    constructor(cardImage, cardData) {
+        this.cardImage = cardImage;
+        this.cardData = cardData;
+        this.matched = false;
+        let color = getRandomColor();
+        this.cardOne = new Card(this.cardImage, this.cardData, color);
+        this.cardTwo = new Card(this.cardImage, this.cardData, color);
+
         this.cardHolderOne = this.createCardPair(this.cardOne);
         this.cardHolderTwo = this.createCardPair(this.cardTwo);
-        //this.cardHolderTwo = this.cardHolderOne.cloneNode(true);
-        this.matched = false;
     }
     createCardPair = function (card) {
-        console.log('createCardPair:'+card)
         const newCardHolder = document.createElement('div');
         newCardHolder.classList.add('cardHolder');
 
         newCardHolder.appendChild(card.frontSide);
         newCardHolder.appendChild(card.backSide);
+
         return newCardHolder;
     }
 }
 class Card {
-    constructor() {
+    constructor(cardImage, cardData, color) {
+        this.cardData = cardData;
+        this.cardImage = cardImage;
+        this.cardColor = color;
         this.frontSide = this.createFrontSide();
         this.backSide = this.createBackSide();
         this.setCardFrontSide();
@@ -36,26 +42,21 @@ class Card {
         const newCardBack = document.createElement('div');
         newCardBack.classList.add('card');
         newCardBack.classList.add('card-back');
+        newCardBack.setAttribute('card-id', this.cardData);
         newCardBack.addEventListener('click', checkForMatch);
+
         return newCardBack;
     }
-    setCardFrontSide = async function () {
+    checkForMatch = function (e) {
+        console.log("checkForMatch: " + this);
+    }
+    setCardFrontSide = function () {
         switch (cardType) {
             case 'color':
-                this.frontSide.style.background = getRandomColor();
+                this.frontSide.style.background = this.cardColor;
                 break;
             case 'cards':
-                {
-                    const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`;
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(data => {
-                            this.frontSide.style.backgroundImage = `url(${data.cards[0].image})`;
-                        })
-                        .catch(err => {
-                            alert(`error: ${err}`);
-                        });
-                }
+                this.frontSide.style.backgroundImage = `url(${this.cardImage})`;                
                 break;
             default:
                 alert("WRONG CARD TYPE");
@@ -63,15 +64,8 @@ class Card {
         }
     }
 }
-const cardsArea = document.getElementById('cardsArea');
-function makeACardTest() {
-    let cardPair = new CardPair();
-    console.log(cardPair);
-    cardsArea.appendChild(cardPair.cardHolderOne);
-    cardsArea.appendChild(cardPair.cardHolderTwo);
-}
 //set type of card
-let cardType = 'cards';
+let cardType = 'color';
 let deckId;
 const cardsTypeButtons = document.querySelectorAll('.cardType');
 cardsTypeButtons.forEach(e => e.addEventListener('change', setCardType));
@@ -83,11 +77,13 @@ function setCardType(e) {
     }
 }
 window.addEventListener('load', () => {
-    // addCardsToArea();
-    getCardDeckAPI();
-    makeACardTest();
+    getCardDeckAPI().then(x =>
+        shuffleCardDeckAPI().then(x =>
+            addCardsToArea()
+        )
+    );
 });
-function getCardDeckAPI() {
+async function getCardDeckAPI() {
     deckId = localStorage.getItem('deckId');
 
     if (!deckId) {
@@ -103,7 +99,7 @@ function getCardDeckAPI() {
             });
     }
 }
-function shuffleCardDeckAPI() {
+async function shuffleCardDeckAPI() {
     if (deckId) {
         const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/shuffle/`;
         fetch(url)
@@ -114,7 +110,6 @@ function shuffleCardDeckAPI() {
             .catch(err => {
                 alert(`error: ${err}`);
             });
-        getCardFromDeckAPI();
     }
     else {
         getCardDeckAPI();
@@ -150,44 +145,44 @@ cardsButtons.forEach(element => {
         addCardsToArea()
     });
 });
-// const cardsTypeButtons = document.querySelectorAll('.cardType');
-// //console.log(cardsTypeButtons)
-// cardsTypeButtons.forEach(element => {
-//     element.addEventListener('click', addCardsToArea);
-// });
-
-function addCardsToArea() {
-    //console.log('addCardsToArea')
+let cardsObjects = [];
+let cardsInPlay = [];
+const cardsArea = document.getElementById('cardsArea');
+async function addCardsToArea() {
+    cardsObjects = [];
+    cardsInPlay = [];
     numberOfTries = 0;
-    numberOfTriesSpan.innerText = 0;
+    numberOfTriesSpan.innerText = numberOfTries;
     cardsArea.innerHTML = '';
-    let cardArray = [];
 
-    for (let index = 0; index < numberOfCards; index = index + 2) {
-        let cardAttribute;
-        let cardsWithAttr;
-        do {
-            cardsWithAttr = undefined;
-            cardAttribute = getRandomCard();
-            cardsWithAttr = document.querySelectorAll(`.card[card='${cardAttribute}']`);
-        } while (cardsWithAttr.length > 0)
-
-        cardArray.push(createCard(cardAttribute, 1));
-        cardArray.push(createCard(cardAttribute, 2));
-    }
-
-    cardArray = shuffleCards(cardArray);
-    let promise = Promise.resolve();
-    cardArray.forEach(function (element) {
-        promise = promise.then(function () {
-            cardsArea.appendChild(element);
-            return new Promise(function (resolve) {
-                setTimeout(resolve, 50);
+    const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=${numberOfCards / 2}`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            data.cards.forEach(x => {
+                let cardPair = new CardPair(x.image, x.code);
+                cardsObjects.push(cardPair);
+                cardsInPlay.push(cardPair.cardHolderOne);
+                cardsInPlay.push(cardPair.cardHolderTwo);
             });
+        })
+        .then(function () {
+            cardsInPlay = shuffleCards(cardsInPlay);
+            let promise = Promise.resolve();
+            cardsInPlay.forEach(function (element) {
+                promise = promise.then(function () {
+                    cardsArea.appendChild(element);
+                    return new Promise(function (resolve) {
+                        setTimeout(resolve, 50);
+                    });
+                });
+            });
+            promise.then(function () {
+            });
+        })
+        .catch(err => {
+            alert(`error: ${err}`);
         });
-    });
-    promise.then(function () {
-    });
 }
 
 function shuffleCards(cardArray) {
@@ -199,63 +194,35 @@ function shuffleCards(cardArray) {
     }
     return cardArray;
 }
-
-function createCard(cardAttribute, pair) {
-    const newCardHolder = document.createElement('div');
-    newCardHolder.classList.add('cardHolder');
-
-    const newCardBack = document.createElement('div');
-    newCardBack.classList.add('card');
-    newCardBack.classList.add('card-back');
-    newCardBack.classList.add('incorrect');
-    newCardBack.setAttribute("card", cardAttribute);
-    newCardBack.setAttribute("pair", cardAttribute + pair);
-    newCardBack.setAttribute("tabindex", 0);
-    newCardBack.addEventListener('click', checkForMatch);
-    newCardHolder.appendChild(newCardBack);
-
-    const newCardFront = document.createElement('div');
-    newCardFront.classList.add('card');
-    newCardFront.classList.add('card-front');
-    newCardFront.classList.add('card-rotate-opposite');
-    newCardFront.style.background = setCardFrontSide(cardAttribute);
-    newCardFront.setAttribute("card", cardAttribute);
-    newCardFront.setAttribute("pair", cardAttribute + pair);
-    newCardFront.setAttribute("tabindex", 0);
-    newCardHolder.appendChild(newCardFront);
-
-    return newCardHolder;
-}
-let matchOne;
-let matchTwo;
+let cardElementOne;
+let cardElementTwo;
 
 function checkForMatch(event) {
     const cardElement = event.target;
 
-    const cardAttribute = cardElement.getAttribute("pair");
-    const cardFront = document.querySelector(`.card-front[pair='${cardAttribute}']`);
-    cardFront.classList.toggle('card-rotate-opposite');
-    cardElement.classList.toggle('card-rotate');
-    cardElement.removeEventListener('click', checkForMatch);
-    console.log(matchOne);
-    console.log(matchTwo);
+    let holderElement = cardsInPlay.find(card => card.lastChild === cardElement);
+    holderElement.firstChild.classList.remove('card-rotate-opposite');
+    holderElement.lastChild.classList.add('card-rotate');
+    holderElement.lastChild.removeEventListener('click', checkForMatch);
 
-    if (matchOne === undefined) {
-        matchOne = cardElement;
+    if (cardElementOne === undefined) {
+        cardElementOne = holderElement;
     }
-    else if (matchTwo === undefined) {
+    else if (cardElementTwo === undefined) {
         numberOfTries++;
         numberOfTriesSpan.innerText = numberOfTries;
-        matchTwo = cardElement;
-        if (matchOne.getAttribute("card") === matchTwo.getAttribute("card")) {
-            matchOne.classList.remove('incorrect');
-            matchTwo.classList.remove('incorrect');
+        cardElementTwo = holderElement;
+
+        if (cardElementOne.lastChild.getAttribute("card-id") === cardElementTwo.lastChild.getAttribute("card-id")) {
+            const cardId = cardElementOne.lastChild.getAttribute("card-id");
+            var cardPair = cardsObjects.find(x => x.cardData === cardId);
+            cardPair.matched = true;
             resetMatches();
         } else {
             disableEnableEventListeners();
             setTimeout(function () {
-                returnToNormal(matchTwo);
-                returnToNormal(matchOne);
+                returnToNormal(cardElementOne);
+                returnToNormal(cardElementTwo);
                 resetMatches();
             }, delayTime);
         }
@@ -274,61 +241,22 @@ function disableEnableEventListeners() {
     }, delayTime);
 }
 function checkForWinner() {
-    let numberOfBacks = 0;
-    var allCards = document.querySelectorAll('.card');
-    allCards.forEach(element => {
-        if (element.classList.contains('incorrect')) {
-            numberOfBacks++;
-        }
-    });
-    if (numberOfBacks == 0) {
+    if (!cardsObjects.some(x => x.matched === false)) {
         alert("Grats!");
     }
 }
 
-function returnToNormal(cardElement) {
-    const cardAttribute = cardElement.getAttribute("pair");
-    const cardFront = document.querySelector(`.card-front[pair='${cardAttribute}']`);
-    cardFront.classList.toggle('card-rotate-opposite');
-    cardElement.classList.toggle('card-rotate');
-    cardElement.addEventListener('click', checkForMatch);
+function returnToNormal(element) {
+    element.firstChild.classList.add('card-rotate-opposite');
+    element.lastChild.classList.remove('card-rotate');
+    element.lastChild.addEventListener('click', checkForMatch);    
 }
+
 function resetMatches() {
-    matchOne = undefined;
-    matchTwo = undefined;
+    cardElementOne = undefined;
+    cardElementTwo = undefined;
 }
-function getRandomCard() {
-    var cardTypesElements = document.querySelector('.cardType:checked');
-    typeOfCard = cardTypesElements.value;
 
-    switch (typeOfCard) {
-        case 'color':
-            return getRandomColor();
-        case 'cards':
-            return getRandomNumber(52) + 1;
-        default:
-            alert("WRONG CART TYPE");
-            break;
-    }
-
-}
-function setCardFrontSide(cardAttribute) {
-
-    var cardTypesElements = document.querySelector('.cardType:checked');
-    typeOfCard = cardTypesElements.value;
-
-    switch (typeOfCard) {
-        case 'color':
-            return cardAttribute;
-        case 'cards':
-            let cardNumber = parseInt(cardAttribute);
-            //console.log(cardNumber);
-            return `rgb(${cardNumber}, 0, 0)`;
-        default:
-            alert("WRONG CART TYPE");
-            break;
-    }
-}
 function getRandomColor() {
     let randomRed = getRandomNumber(255);
     let randomGreen = getRandomNumber(255);
