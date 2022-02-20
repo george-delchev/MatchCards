@@ -86,7 +86,7 @@ label.typeColor{
   background: rgb(226, 107, 216)
 }
 label.typeCard{
-  background: url('../images/images/clubs.jpg')
+  background-image: url("https://deckofcardsapi.com/static/img/AS.png");
 }
 .cardType + label + .cardHolder label:first-child {
   box-shadow: 0px 2px 2px 2px black;
@@ -153,6 +153,7 @@ label.typeCard{
   box-shadow: 0px 5px 5px 5px black;
   backface-visibility: hidden;
   transition: transform 0.5s;
+  background-size: cover;
 }
 
 .card-back{
