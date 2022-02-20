@@ -56,7 +56,7 @@ class Card {
                 this.frontSide.style.background = this.cardColor;
                 break;
             case 'cards':
-                this.frontSide.style.backgroundImage = `url(${this.cardImage})`;                
+                this.frontSide.style.backgroundImage = `url(${this.cardImage})`;
                 break;
             default:
                 alert("WRONG CARD TYPE");
@@ -76,19 +76,17 @@ function setCardType(e) {
         shuffleCardDeckAPI();
     }
 }
-window.addEventListener('load', () => {
-    getCardDeckAPI().then(x =>
-        shuffleCardDeckAPI().then(x =>
-            addCardsToArea()
-        )
+window.addEventListener('load', async () => {
+    getCardDeckAPI().then(res=>
+        addCardsToArea()
     );
 });
 async function getCardDeckAPI() {
     deckId = localStorage.getItem('deckId');
 
     if (!deckId) {
-        const url = `https://www.deckofcardsapi.com/api/deck/new/shuffle`;
-        fetch(url)
+        const url = `https://www.deckofcardsapi.com/api/deck/new?jokers_enabled=true`;
+        await fetch(url)
             .then(res => res.json())
             .then(data => {
                 deckId = data.deck_id;
@@ -102,7 +100,7 @@ async function getCardDeckAPI() {
 async function shuffleCardDeckAPI() {
     if (deckId) {
         const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/shuffle/`;
-        fetch(url)
+        await fetch(url)
             .then(res => res.json())
             .then(data => {
                 console.log(`Deck ${data.deck_id} shuffled: ${data.shuffled}`)
@@ -115,24 +113,6 @@ async function shuffleCardDeckAPI() {
         getCardDeckAPI();
     }
 }
-async function getCardFromDeckAPI() {
-    if (deckId) {
-        const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`;
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                return data;
-            })
-            .catch(err => {
-                alert(`error: ${err}`);
-            });
-    }
-    else {
-        getCardDeckAPI();
-        getCardFromDeckAPI();
-    }
-}
 
 const numberOfTriesSpan = document.getElementById('numberOfTries');
 
@@ -142,7 +122,9 @@ const cardsButtons = document.querySelectorAll('.getCardButton');
 cardsButtons.forEach(element => {
     element.addEventListener('click', function (e) {
         numberOfCards = parseInt(e.target.id);
-        addCardsToArea()
+        shuffleCardDeckAPI().then(res =>
+            addCardsToArea()
+        );
     });
 });
 let cardsObjects = [];
@@ -249,7 +231,7 @@ function checkForWinner() {
 function returnToNormal(element) {
     element.firstChild.classList.add('card-rotate-opposite');
     element.lastChild.classList.remove('card-rotate');
-    element.lastChild.addEventListener('click', checkForMatch);    
+    element.lastChild.addEventListener('click', checkForMatch);
 }
 
 function resetMatches() {
