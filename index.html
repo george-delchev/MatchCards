@@ -15,46 +15,28 @@
 	</head>
 
 	<body>
-
 		<head>
 			<nav>
-				<section class="typeOfCards">
-					<div>
-						<input type="radio" id="cards" name="cardType" class="cardType" value="cards">
-						<label for="cards">Cards</label>
-						<div class="cardHolder">
-							<label for="cards" class="card typeCard"></label>
-							<label for="cards" class="card card-back"></label>
-						</div>
-					</div>
-					<div>
-						<input type="radio" id="color" name="cardType" class="cardType" value="color" checked>
-						<label for="color">Color</label>
-						<div class="cardHolder">
-							<label for="color" class="card typeColor"></label>
-							<label for="color" class="card card-back"></label>
-						</div>
-					</div>
-				</section>
-
-				<section class="numberOfCards">
-					<!-- <a href="#" id="random">Random</a> -->
-					<a href="#" class="getCardButton" id="6">6</a>
-					<a href="#" class="getCardButton" id="8">8</a>
-					<a href="#" class="getCardButton" id="10">10</a>
-					<a href="#" class="getCardButton" id="12">12</a>
-				</section>
+				<select name="cardTypes" id="card-type">
+					<option value="cards" selected>Card</option>
+					<option value="color">Color</option>
+				</select>
+				<select name="cardNumbers" id="card-number">
+					<option value="4">4</option>
+					<option value="8" selected>8</option>
+					<option value="12">12</option>
+					<option value="16">16</option>
+					<option value="16">20</option>
+				</select>
+				<h1>Match Two</h1>
+				<a href="#">Reset</a>
 			</nav>
 		</head>
-		<main>
-
-
-			<section class="gameStats">
-				<span>Number of tries: <span id="numberOfTries">0</span></span>
-			</section>
+		<main>			
+			<section class="triesArea">Number of tries: <span id="numberOfTries">0</span></section>
 			<section class="cardsArea" id="cardsArea">
 
-			</section>
+			</section>			
 		</main>
 		<footer>
 			<a href="https://www.freepik.com/vectors/cards">Cards vector created by brgfx - www.freepik.com</a>

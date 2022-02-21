@@ -65,11 +65,12 @@ class Card {
     }
 }
 //set type of card
-let cardType = 'color';
+let cardType = 'cards';
 let deckId;
-const cardsTypeButtons = document.querySelectorAll('.cardType');
+const cardsTypeButtons = document.querySelectorAll('#card-type');
 cardsTypeButtons.forEach(e => e.addEventListener('change', setCardType));
 function setCardType(e) {
+    console.log(e.target.value)
     cardType = e.target.value;
     addCardsToArea();
     if (cardType === 'cards') {
@@ -118,10 +119,10 @@ const numberOfTriesSpan = document.getElementById('numberOfTries');
 
 let delayTime = 500;
 
-const cardsButtons = document.querySelectorAll('.getCardButton');
+const cardsButtons = document.querySelectorAll('#card-number');
 cardsButtons.forEach(element => {
-    element.addEventListener('click', function (e) {
-        numberOfCards = parseInt(e.target.id);
+    element.addEventListener('change', function (e) {
+        numberOfCards = parseInt(e.target.value);
         shuffleCardDeckAPI().then(res =>
             addCardsToArea()
         );
