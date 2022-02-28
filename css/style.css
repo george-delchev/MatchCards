@@ -11,6 +11,7 @@
 /******************************************
 /* NAVIGATION
 /*******************************************/
+
 html, body{
   display: flex;
   flex-direction: column;
@@ -30,11 +31,13 @@ nav{
   display: flex;
   justify-content: space-between;
   width: 100%;
+
 }
 select{
   border: none;
   cursor: pointer;
 }
+
 nav, nav *{
   color: whitesmoke;
   border-left: 1px solid burlywood;
