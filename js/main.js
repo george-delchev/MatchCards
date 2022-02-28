@@ -128,6 +128,12 @@ cardsButtons.forEach(element => {
         );
     });
 });
+const resetButton = document.querySelector('#game-reset');
+resetButton.addEventListener('click', function () {
+    shuffleCardDeckAPI().then(res =>
+        addCardsToArea()
+    );
+});
 let cardsObjects = [];
 let cardsInPlay = [];
 const cardsArea = document.getElementById('cardsArea');
