@@ -1,6 +1,8 @@
-const cardsArea = document.getElementById("cardsArea");
 let numberOfTries = 0;
 let numberOfCards = 8;
+let cardType = "cards";
+let delayTime = 500;
+let deckId;
 
 class CardPair {
   constructor(cardImage, cardData) {
@@ -48,9 +50,6 @@ class Card {
 
     return newCardBack;
   };
-  checkForMatch = function (e) {
-    console.log("checkForMatch: " + this);
-  };
   setCardFrontSide = function () {
     switch (cardType) {
       case "color":
@@ -65,121 +64,115 @@ class Card {
     }
   };
 }
-//set type of card
-let cardType = "cards";
-let deckId;
-const cardsTypeButtons = document.querySelectorAll("#card-type");
-cardsTypeButtons.forEach((e) => e.addEventListener("change", setCardType));
-function setCardType(e) {
-  console.log(e.target.value);
-  cardType = e.target.value;
-  addCardsToArea();
-  if (cardType === "cards") {
-    shuffleCardDeckAPI();
+async function makeRequestToAPI(url) {
+  let response = await fetch(url);
+  if (!response.ok) {
+    alert(`HTTP error! status: ${response.status}`);
+    return;
   }
+  return response;
 }
-window.addEventListener("load", async () => {
-  getCardDeckAPI()
-    .then((res) => shuffleCardDeckAPI())
-    .then((res) => addCardsToArea());
-});
 async function getCardDeckAPI() {
   deckId = localStorage.getItem("deckId");
 
   if (!deckId) {
     const url = `https://www.deckofcardsapi.com/api/deck/new?jokers_enabled=true`;
-    await fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        deckId = data.deck_id;
-        localStorage.setItem("deckId", deckId);
-      })
-      .catch((err) => {
-        alert(`error: ${err}`);
-      });
+    let response = await makeRequestToAPI(url);
+    let data = await response.json();
+
+    deckId = data.deck_id;
+    localStorage.setItem("deckId", deckId);
   }
 }
 async function shuffleCardDeckAPI() {
   if (deckId) {
     const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/shuffle/`;
-    await fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(`Deck ${data.deck_id} shuffled: ${data.shuffled}`);
-      })
-      .catch((err) => {
-        alert(`error: ${err}`);
-      });
+    let response = await makeRequestToAPI(url);
+    let data = await response.json();
+    console.log(`Deck ${data.deck_id} shuffled: ${data.shuffled}`);
   } else {
     getCardDeckAPI();
   }
 }
+async function getCardsAPI() {
+  const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=${
+    numberOfCards / 2
+  }`;
+  let response = await makeRequestToAPI(url);
+  let data = await response.json();
+  return data;
+}
 
+const cardsArea = document.getElementById("cardsArea");
+const cardsTypeButtons = document.querySelectorAll("#card-type");
+const cardsButtons = document.querySelectorAll("#card-number");
+const resetButton = document.querySelector("#game-reset");
 const numberOfTriesSpan = document.getElementById("numberOfTries");
 
-let delayTime = 500;
-
-const cardsButtons = document.querySelectorAll("#card-number");
+window.addEventListener("load", async () => {
+  await getCardDeckAPI();
+  await shuffleAndAddCardsToArea();
+});
 cardsButtons.forEach((element) => {
-  element.addEventListener("change", function (e) {
+  element.addEventListener("change", async (e) => {
     numberOfCards = parseInt(e.target.value);
-    shuffleCardDeckAPI().then((res) => addCardsToArea());
+    await shuffleAndAddCardsToArea();
   });
 });
-
-const resetButton = document.querySelector("#game-reset");
-resetButton.addEventListener("click", function () {
-  shuffleCardDeckAPI().then((res) => addCardsToArea());
+cardsTypeButtons.forEach((element) => {
+  element.addEventListener("change", async (e) => {
+    cardType = e.target.value;
+    await shuffleAndAddCardsToArea();
+  });
 });
+resetButton.addEventListener("click", async () => {
+  await shuffleAndAddCardsToArea();
+});
+
+async function shuffleAndAddCardsToArea() {
+  await shuffleCardDeckAPI();
+  await addCardsToArea();
+}
+
 let cardsObjects = [];
 let cardsInPlay = [];
 async function addCardsToArea() {
+  resetBoard();
+  await createCards();
+  shuffleCards();
+  await placeCards();
+}
+function resetBoard() {
   cardsArea.innerHTML = "";
   cardsObjects = [];
   cardsInPlay = [];
   numberOfTries = 0;
   numberOfTriesSpan.innerText = numberOfTries;
-
-  const url = `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/?count=${
-    numberOfCards / 2
-  }`;
-  await fetch(url)
-    .then((res) => res.json())
-    .then((data) => {
-      data.cards.forEach((x) => {
-        let cardPair = new CardPair(x.image, x.code);
-        cardsObjects.push(cardPair);
-        cardsInPlay.push(cardPair.cardHolderOne);
-        cardsInPlay.push(cardPair.cardHolderTwo);
-      });
-    })
-    .then(() => {
-      cardsInPlay = shuffleCards(cardsInPlay);
-      let promise = Promise.resolve();
-      cardsInPlay.forEach(function (element) {
-        promise =  promise.then(function () {
-          cardsArea.appendChild(element);
-          return new Promise(function (resolve) {
-            setTimeout(resolve, 50);
-          });
-        });
-      });
-      promise.then(function () {});
-    })
-    .catch((err) => {
-      alert(`error: ${err}`);
-    });
 }
-
-function shuffleCards(cardArray) {
-  for (let index = cardArray.length - 1; index > 0; index--) {
+async function createCards(params) {
+  let data = await getCardsAPI();
+  data.cards.forEach((x) => {
+    let cardPair = new CardPair(x.image, x.code);
+    cardsObjects.push(cardPair);
+    cardsInPlay.push(cardPair.cardHolderOne);
+    cardsInPlay.push(cardPair.cardHolderTwo);
+  });
+}
+function shuffleCards() {
+  for (let index = cardsInPlay.length - 1; index > 0; index--) {
     var j = Math.floor(Math.random() * (index + 1));
-    var temp = cardArray[index];
-    cardArray[index] = cardArray[j];
-    cardArray[j] = temp;
+    [cardsInPlay[index], cardsInPlay[j]] = [cardsInPlay[j], cardsInPlay[index]];
   }
-  return cardArray;
 }
+async function placeCards() {
+  for (let e of cardsInPlay) {
+    await wait(50);
+    await cardsArea.appendChild(e);
+  }
+}
+async function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 let cardElementOne;
 let cardElementTwo;
 
