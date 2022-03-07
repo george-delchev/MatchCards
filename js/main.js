@@ -182,6 +182,7 @@ function checkForMatch(event) {
   let holderElement = cardsInPlay.find(
     (card) => card.lastChild === cardElement
   );
+  holderElement.firstChild.classList.add("card-selected");
   holderElement.firstChild.classList.remove("card-rotate-opposite");
   holderElement.lastChild.classList.add("card-rotate");
   holderElement.lastChild.removeEventListener("click", checkForMatch);
@@ -224,12 +225,15 @@ function checkForWinner() {
 }
 
 function returnToNormal(element) {
+  element.firstChild.classList.remove("card-selected");
   element.firstChild.classList.add("card-rotate-opposite");
   element.lastChild.classList.remove("card-rotate");
   element.lastChild.addEventListener("click", checkForMatch);
 }
 
 function resetMatches() {
+  cardElementOne.firstChild.classList.remove("card-selected");
+  cardElementTwo.firstChild.classList.remove("card-selected");
   cardElementOne = undefined;
   cardElementTwo = undefined;
 }
