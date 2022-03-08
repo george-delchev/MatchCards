@@ -26,7 +26,6 @@ The rest was just practice of mostly basic stuff, nothing groundbreaking.
 
 ## Things to improve:
 
---add better winning message
+--add better winning message?
 --use knockout? - for matching and displaing cards
 --top score? - add history with top5 score, maybe change the score to show total wrong tries?
---fix timeouts, as in remove - currently have timeouts as you click through cards to allow the styles to be removed/added correctly after the checks, find a way to remove them.
