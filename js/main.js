@@ -112,22 +112,27 @@ const numberOfTriesSpan = document.getElementById("numberOfTries");
 window.addEventListener("load", async () => {
   await getCardDeckAPI();
   await shuffleAndAddCardsToArea();
+  addEventListenersToButtons();
 });
-cardsButtons.forEach((element) => {
-  element.addEventListener("change", async (e) => {
-    numberOfCards = parseInt(e.target.value);
-    await shuffleAndAddCardsToArea();
+function addEventListenersToButtons() {
+  cardsButtons.forEach((element) => {
+    element.addEventListener("change", cardNumbersEvent, {once: true});
   });
-});
-cardsTypeButtons.forEach((element) => {
-  element.addEventListener("change", async (e) => {
-    cardType = e.target.value;
-    await shuffleAndAddCardsToArea();
+  cardsTypeButtons.forEach((element) => {
+    element.addEventListener("change", cardsTypeEvent, {once: true});
   });
-});
-resetButton.addEventListener("click", async () => {
+  resetButton.addEventListener("click", shuffleAndAddCardsToArea, {once: true});  
+}
+
+async function cardNumbersEvent(e) {
+  numberOfCards = parseInt(e.target.value);
   await shuffleAndAddCardsToArea();
-});
+}
+
+async function cardsTypeEvent(e) {
+  cardType = e.target.value;
+  await shuffleAndAddCardsToArea();
+}
 
 async function shuffleAndAddCardsToArea() {
   await shuffleCardDeckAPI();
@@ -138,9 +143,12 @@ let cardsObjects = [];
 let cardsInPlay = [];
 async function addCardsToArea() {
   resetBoard();
+
   await createCards();
   shuffleCards();
   await placeCards();
+  
+  addEventListenersToButtons();
 }
 function resetBoard() {
   cardsArea.innerHTML = "";
